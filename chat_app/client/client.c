@@ -7,7 +7,7 @@
 
 #define LOG_FILE "client.log"
 
-int init_client(int argc, char **argv) {
+int init_client(const int argc, char **argv) {
     if (logger_init(LOG_FILE) != 0) {
         fprintf(stderr, "Failed to initialize logger\n");
         return -1;

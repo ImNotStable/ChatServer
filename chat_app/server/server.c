@@ -23,6 +23,7 @@
 
 #define LOG_FILE "server.log"
 #define CHAT_BUFFER_SIZE 8192
+#define SERVER_PORT 54321
 
 static int server_socket = -1;
 static int running = 1;

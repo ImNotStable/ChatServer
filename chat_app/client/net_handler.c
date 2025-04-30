@@ -268,17 +268,13 @@ static void *receive_thread_func(void *arg) {
               case MSG_USER_LIST: {
                 logger_log(LOG_INFO, "Received user list of length %u", length);
                 
-                // Validate user list data
-                if (length < 6) { // At minimum, "Users" + null terminator
-                    logger_log(LOG_WARNING, "Received invalid user list (too short: %u bytes)", length);
+                                if (length < 6) {                     logger_log(LOG_WARNING, "Received invalid user list (too short: %u bytes)", length);
                     break;
                 }
                 
-                // Verify buffer is null-terminated
-                if (buffer[length-1] != '\0') {
+                                if (buffer[length-1] != '\0') {
                     logger_log(LOG_WARNING, "Received improperly terminated user list");
-                    // Add a null terminator to be safe
-                    if (length < sizeof(buffer)) {
+                                        if (length < sizeof(buffer)) {
                         buffer[length] = '\0';
                     } else {
                         buffer[sizeof(buffer) - 1] = '\0';
@@ -287,8 +283,7 @@ static void *receive_thread_func(void *arg) {
                     }
                 }
                 
-                // Verify first string is "Users" header
-                if (strcmp((const char *)buffer, "Users") != 0) {
+                                if (strcmp((const char *)buffer, "Users") != 0) {
                     logger_log(LOG_WARNING, "Invalid user list format: missing 'Users' header");
                 }
                 
@@ -380,14 +375,14 @@ void net_handler_stop_receiving(void) {
         if (connected && socket_fd != -1) {
                 shutdown(socket_fd, SHUT_RD);
     }
-    
-        pthread_t thread_to_join = receive_thread;
+
+        const pthread_t thread_to_join = receive_thread;
         receive_thread = 0;
     
     pthread_mutex_unlock(&net_mutex);
     
     if (thread_to_join != 0) {
-                        int join_result = pthread_join(thread_to_join, NULL);
+                        const int join_result = pthread_join(thread_to_join, NULL);
         if (join_result != 0) {
                         logger_log(LOG_WARNING, "Failed to join receive thread: %s", strerror(join_result));
         } else {
@@ -421,8 +416,8 @@ int net_handler_set_nickname(const char *nickname_str) {
     
         const int sock = socket_fd;
     pthread_mutex_unlock(&net_mutex);
-    
-        int result = send_message(sock, MSG_NICKNAME, &req, sizeof(req));
+
+        const int result = send_message(sock, MSG_NICKNAME, &req, sizeof(req));
     
     if (result <= 0) {
         logger_log(LOG_ERROR, "Failed to send nickname request");
@@ -480,8 +475,8 @@ int net_handler_send_message(const char *message) {
 
         const int sock = socket_fd;
     pthread_mutex_unlock(&net_mutex);
-    
-        int result = send_message(sock, MSG_CHAT, msg, sizeof(ChatMessage));
+
+        const int result = send_message(sock, MSG_CHAT, msg, sizeof(ChatMessage));
     
         free(msg);
     

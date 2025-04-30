@@ -25,22 +25,22 @@
 #include <errno.h>
 #include <netinet/in.h>
 
-/** Maximum number of concurrent clients */
+
 #define MAX_CLIENTS 100
 
-/** Array of active clients */
+
 Client *clients[MAX_CLIENTS] = {NULL};
 
-/** Number of active clients */
+
 static int client_count = 0;
 
-/** Next client ID to assign */
+
 static int next_client_id = 1;
 
-/** Mutex for thread-safe access to the clients array */
+
 pthread_mutex_t clients_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-/** Array to track client threads for cleanup */
+
 static pthread_t client_threads[MAX_CLIENTS] = {0};
 static int thread_count = 0;
 static pthread_mutex_t thread_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -102,7 +102,7 @@ void chat_handler_cleanup(void) {
 
             alarm(2);
 
-            int join_result = pthread_join(current_joining_thread, NULL);
+            const int join_result = pthread_join(current_joining_thread, NULL);
 
             alarm(0);
 
@@ -299,7 +299,7 @@ void chat_handler_remove_client(const int client_id) {
             pthread_mutex_unlock(&clients_mutex);
 
             if (client->socket >= 0) {
-                int result = close(client->socket);
+                const int result = close(client->socket);
                 if (result != 0) {
                     logger_log(LOG_WARNING, "Failed to close socket for client %d: %s",
                                client->id, strerror(errno));
@@ -307,7 +307,7 @@ void chat_handler_remove_client(const int client_id) {
                 client->socket = -1;
             }
 
-            int detach_result = pthread_detach(client->thread);
+            const int detach_result = pthread_detach(client->thread);
             if (detach_result != 0) {
                 logger_log(LOG_WARNING, "Failed to detach thread for client %d: %s",
                            client->id, strerror(detach_result));
@@ -364,7 +364,7 @@ void chat_handler_remove_client(const int client_id) {
  * @return NULL
  */
 void *chat_handler_client_thread(void *arg) {
-    Client *client = arg;
+    const Client *client = arg;
     const int client_id = client->id;
     const int socket_fd = client->socket;
 
@@ -391,7 +391,7 @@ void *chat_handler_client_thread(void *arg) {
             }
 
             const MessageType type = header.type;
-            uint32_t length = ntohl(header.length);
+            const uint32_t length = ntohl(header.length);
 
             logger_log(LOG_DEBUG, "Client Thread %d: Received header. Type=%d, Length=%u", client_id, type, length);
 
@@ -432,8 +432,8 @@ void *chat_handler_client_thread(void *arg) {
                 char discard_buffer[1024];
                 size_t remaining = length;
                 while (remaining > 0) {
-                    size_t to_read = remaining < sizeof(discard_buffer) ? remaining : sizeof(discard_buffer);
-                    ssize_t read_bytes = recv(socket_fd, discard_buffer, to_read, 0);
+                    const size_t to_read = remaining < sizeof(discard_buffer) ? remaining : sizeof(discard_buffer);
+                    const ssize_t read_bytes = recv(socket_fd, discard_buffer, to_read, 0);
                     if (read_bytes <= 0) {
                         break;
                     }
@@ -510,7 +510,7 @@ void *chat_handler_client_thread(void *arg) {
                     }
 
                     pthread_mutex_lock(&clients_mutex);
-                    int slot = find_client_slot(client_id);
+                    const int slot = find_client_slot(client_id);
                     if (slot != -1) {
                         safe_nickname_copy(clients[slot]->nickname, req->nickname, sizeof(clients[slot]->nickname));
                         clients[slot]->has_nickname = 1;
@@ -931,7 +931,7 @@ void send_user_list(const int client_socket) {
     size_t pos = 0;
 
     while (pos < sizeof(buffer) && count < MAX_CLIENTS + 2) {
-        size_t len = strlen(buffer + pos);
+        const size_t len = strlen(buffer + pos);
         if (len == 0) {
             break;
         }

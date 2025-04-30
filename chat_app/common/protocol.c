@@ -175,14 +175,14 @@ int send_message(int socket, MessageType type, const void *data, uint32_t data_l
             break;
     }
 
-    int total_length = serialize_message(buffer, type, data, data_length);
+    const int total_length = serialize_message(buffer, type, data, data_length);
     if (total_length < 0) {
         logger_log(LOG_ERROR, "send_message: Failed to serialize message (type=%d)", type);
         free(buffer);
         return -1;
     }
-    
-    ssize_t bytes_sent = send(socket, buffer, total_length, 0);
+
+    const ssize_t bytes_sent = send(socket, buffer, total_length, 0);
     
     free(buffer);
     
